@@ -7,4 +7,6 @@
 7..git 
 8.使用git GUI
 9.本地修改,并上傳到網絡123
+9.1為啥都是使用fast_forward
+9.2為啥都是使用fast_forward
 10.修改此條內容
