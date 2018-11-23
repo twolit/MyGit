@@ -1,0 +1,264 @@
+每个机器都必须自报家门：你的名字和Email地址
+git config --global user.name "Your Name"
+git config --global user.email "email@example.com"
+git config命令的--global参数，用了这个参数，表示你这台机器上所有的Git仓库都会使用这个配置，当然也可以对某个仓库指定不同的用户名和Email地址。
+-----
+mkdir learnGit 創建一個空目錄learnGit
+cd learnGit
+pwd 顯示當前目錄
+-----
+git init 把當前所在目錄設置為GIT管控倉庫
+ 提示:Initialized empty Git repository in C:/Users/song.huang/learnGit/.git/
+ 
+-----
+1.添加文件,可以多次add 多個文件,
+git add readme.txt
+git add -A  所有(新,修改,刪除)文件
+git add .   所有(新,修改,刪除)文件
+git add --ignore-removal.  忽略刪除(新,修改)的文件
+git add -u  修改,刪除的文件
+
+2.把文件提交到倉庫,一次把添加的文件提供
+git commit -m "本次提交的說明..."
+git commit --amend 也叫追加提交，它可以在不增加一个新的commit-id的情况下将新修改的代码追加到前一次的commit-id中，
+注意:git add命令，放入暂存区，准备提交，
+git commit只负责把暂存区的修改提交
+可以這樣操作:第一次修改 -> git add -> 第二次修改 -> git add -> git commit
+----
+git stauts 倉庫當前狀態
+git diff 查看差異點,显示的格式正是Unix通用的diff格式
+
+----
+查看歷史提交
+git log
+git log --pretty=oneline  簡介模式ID長
+git log --pretty=raw
+git log --oneline 簡簡模式
+git log -[length] -[length]参数用于指定显示多少条日志
+git log --graph --oneline 簡單路徑圖
+
+
+----退回版本 HEAD^
+git reset --hard HEAD^
+    在Git中，用HEAD表示当前版本,上一个版本就是HEAD^，上上一个版本就是HEAD^^，当然往上100个版本写100个^，所以写成HEAD~100
+----退回版本 ID
+git reset --hard 7f807 前几位就可以了，Git会自动去找
+    查找id 通過操作記錄來查
+git reflog
+
+•HEAD指向就是当前版本，Git允许在版本的历史之间穿梭，使用命令git reset --hard commit_id。
+•穿梭前，用git log查看提交历史，以便确定要回退到哪个版本。
+•要重返未来，用git reflog查看命令历史，以便确定要回到未来的哪个版本。
+
+----撤销修改（commit之前）
+
+1.修改未ADD,资料在工作区，要返回上次的狀態放棄修改,可以用 git checkout -- Readme.txt
+2.已经add 到缓存区，用命令git reset HEAD <file>可以把已add到暂存区的修改撤销掉（unstage），重新放回工作区：
+3.执行1.来清除工作区资料
+
+----删除文件
+1.通过add commit 添加提交文件；
+2.在文件管理器把文件删除/误删，
+	删除指令rm ：
+	rm test.txt
+	
+3.导致工作区和版本库不一致，通过git status知道那些文件不一致
+4.1 将文件从版本库删除，
+	git rm test.txt 
+	git rm * -r  當前文件夾所有文件,該文件夾也刪除
+	git commit -m "del test.txt"
+	
+4.2 误删，使用 git checkout -- text.txt 取回
+
+
+
+以上为本地管理
+
+
+____________________________________________________________________________
+---配置码库 gitsub ssh（注意大小写）,生成自己的sshkay
+	配置github SSH
+　　SSH是什么？SSH是Secure Shell，是一种认证方式，github可以采用两种认证方式：SSH和https。两种的区别是SSH需要进行SSH key配置，但是每次Pull的时候是不需要输入用户名密码的，而https每次都要输入用户名密码的。
+（1）检测是否能连接到github
+ssh -T git@github.com
+如果看到：
+          Warning: Permanently added ‘github.com,204.232.175.90’ (RSA) to the list of known hosts.
+          Permission denied (publickey).
+则说明可以连接。
+（2）创建本地SSH Keyt
+ssh-keygen -t rsa -C twolit@outlook.com
+ssh-keygen -t rsa -C "這裡是來寫備註"
+　　 執行后,會在~/.ssh目录下生成id_rsa（私钥）和id_rsa.pub（公钥）文件。
+	檢查命令,或者到目錄去找,公司在C:\Users\song.huang\.ssh
+	ls -l "C:\Users\song.huang\.ssh"
+（3）将此密钥（public key）上传至github。
+。在网页版github中，依次点击Account settings（右上角倒数第二个图标） -> SSH Keys -> Add SSH Key，将id_rsa.pub文件中的字符串复制进去，注意字符串中没有换行和空格。
+（4）测试密钥是否成功,　　与第一步相同：一定是大写-T
+ssh -T git@github.com
+　　如果看到：Hi twolit! You’ve successfully authenticated, but GitHub does not provide shell access，则密钥上传成功。
+
+如果在公司電腦生成的sshkey添加到github賬戶內,那github認為是同一個人,和-c后面的備註無關,僅僅是備註
+且,本地.ssh文件夾內的文件不能刪除,否則無法連接
+
+
+
+____________________________________________________________________________
+---远程仓库，  push本地git仓库至github仓库
+github可以采用两种认证方式：SSH和https。
+两种的区别是
+SSH需要进行SSHkey配置(如上节)，每次Pull时不需要输入用户名密码，
+https每次都要输入用户名密码。
+1.在Github中建立仓库
+HTTPS:
+https://github.com/twolit/MyGit.git
+SSH:
+git@github.com:twolit/MyGit.git
+
+2.在本地git 中设置远程github仓库的URL
+　1）Https方式　　
+git remote add origin https://github.com/twolit/MyGit.git
+　2）SSH方式
+git remote add origin git@github.com:twolit/MyGit.git
+
+　注意，这里的origin是远程仓库的一个别名，是任意的。我们之后向远程仓库里同步时，就使用这个别名。
+
+git remote     查看远程仓库名(簡)
+git remote -v  查看远程仓库名：
+回传：
+/*
+origin  git@github.com:twolit/MyGit.git (fetch)
+origin  git@github.com:twolit/MyGit.git (push)
+*/
+
+3.第一次：本地库的所有内容推送到远程库上：push本地git至github远程仓库
+git push -u origin master
+   用git push 命令，实际上就是把当前分支（master）推送到GitHub服务器   由于远程库是空的，我们第一次推送master分支时，加上了-u参数，Git不但会把本地的master分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，在以后的推送或者拉取时就可以简化命令。
+将本地的master分支推送到origin主机，同时指定origin为默认主机，后面就可以不加任何参数使用git push了。
+
+4.之后只要本地作了提交commit，就可以通过命令：
+$ git push origin master
+把本地master分支的最新修改推送至GitHub，现在，你就拥有了真正的分布式版本库
+
+----从远程库克隆
+首先，登陆GitHub，创建一个新的仓库，名字叫gitskills：
+我们勾选Initialize this repository with a README，这样GitHub会自动为我们创建一个README.md文件。
+创建完毕后，可以看到README.md文件：
+下一步是用命令git clone克隆文件到本地库：
+$ git clone git@github.com:twolit/MyGit.git
+$ git clone https://github.com/twolit/MyGit.git
+
+大致流程:
+|git add readme.txt
+|git add -A  所有(新,修改,刪除)文件
+|git add .   所有(新,修改,刪除)文件
+|git add --ignore-removal.  忽略刪除(新,修改)的文件
+|git add -u  修改,刪除的文件
+git commit -m "本次提交的說明..."
+git push origin master
+
+————————————————————————————————————————————————————————————————————————————————————————————————
+----分支管理
+1.创建分支，并切换到分支
+git checkout -b dev
+git checkout命令加上-b参数表示创建并切换，相当于以下两条命令：
+git branch dev
+git checkout dev
+
+git branch 查看当前分支
+* dev
+  master
+git branch命令会列出所有分支，当前分支前面会标一个*号。
+2.修改文件--》add --commit 一串动作都是在dev下工作，因为切换分支了
+3.返回master分支，文档还原修前状态
+git checkout master
+4.合并dev和master,dev中的修改合并到master，Fast-forward快速
+git merge dev
+
+5.如果没有冲突，就可以删除分支dev
+git branch -d dev
+git branch -D <name> 沒有合併需要刪除
+
+Git鼓励使用分支完成某个任务，合并后再删掉分支,过程更安全。
+
+查看分支：git branch
+创建分支：git branch <name>
+切换分支：git checkout <name>
+创建+切换分支：git checkout -b <name>
+合并某分支到当前分支：git merge <name>
+合併分支并顯示分支信息:git merge --no-ff <name> -m "備註信息"
+删除分支：git branch -d <name>
+
+分支管理策略
+默認Git会用Fast forward模式，但这种模式下，删除分支后，会丢掉分支信息。
+加上--no-ff参数,可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并
+____________________________________________________________________________
+解決分支合併中的衝突
+添加分支 	git checkout -b 分支
+分支修改 	文件修改...
+分支添加 	git add 
+分支提交	git commit
+切換主分支 	git checkout master
+主分支修改
+主分支添加
+主分支提交
+分支合併 	git merge 分支
+文件衝突
+修改文件
+重新添加	git add 
+重新提交	git commit
+
+____________________________________________________________________________
+stash 隱藏當前活動工作區,以便進行下一活動
+git stash 隱藏工作區
+|從新分支解決bug
+|
+|
+|回到原來分支繼續工作區任務
+git stash apply 恢復
+git stash drop  刪除
+git stash pop 恢復同時刪除
+git stash list 查看
+git stash apply stash@{0} 恢復指定stash
+
+小結:当手头工作没有完成时，先把工作现场git stash一下，然后去修复bug，修复后，再git stash pop，回到工作现场。
+
+____________________________________________________________________________
+多人協作模式
+
+    1.试图用git push origin <branch-name>推送自己的修改；
+    2.如果推送失败，则因为远程分支比你的本地更新，需要先用git pull试图合并；
+    3.如果合并有冲突，则解决冲突，并在本地提交；
+    4.没有冲突或者解决掉冲突后，再用git push origin <branch-name>推送
+	5.如果git pull提示no tracking information，则说明本地分支和远程分支的链接关系没有创建，用命令git branch --set-upstream-to <branch-name> origin/<branch-name>。
+
+相關指令:
+    1.查看远程库信息，使用git remote -v；    
+    2.从本地推送分支，使用git push origin <branch-name>，
+	3.如果推送失败，先用git pull抓取远程的新提交；
+    4.在本地创建和远程分支对应的分支，使用git checkout -b branch-name origin/branch-name，本地和远程分支的名称最好一致；
+    5.建立本地分支和远程分支的关联，使用git branch --set-upstream branch-name origin/branch-name；
+    6.从远程抓取分支，使用git pull，如果有冲突，要先处理冲突。
+	
+____________________________________________________________________________
+标签:
+
+    命令 git tag <tagname>用于新建一个标签，默认为HEAD，也可以指定一个commit id；
+    命令 git tag -a <tagname> -m "blablabla..."可以指定标签信息；
+    命令 git tag  可以查看所有标签。
+	命令 git show <tagname>可以看到说明文字：
+    命令 git push origin <tagname>可以推送一个本地标签；
+    命令 git push origin --tags可以推送全部未推送过的本地标签；
+    命令 git tag -d <tagname>可以删除一个本地标签；
+    命令 git push origin :refs/tags/<tagname>可以删除一个远程标签。
+
+
+
+
+
+
+
+
+
+
+
+
